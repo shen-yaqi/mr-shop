@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="35ccf09a-00aa-4cda-a1a0-6fa68de6fe4f" name="Default Changelist" comment="" />
+    <list default="true" id="35ccf09a-00aa-4cda-a1a0-6fa68de6fe4f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-commoms/mingrui-shop-common-core/mingrui-shop-common-core.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-commoms/mingrui-shop-common-core/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-commoms/mingrui-shop-common-core/src/main/java/com/baidu/shop/base/BaseApiService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-commoms/mingrui-shop-common-core/src/main/java/com/baidu/shop/base/Result.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-commoms/mingrui-shop-common-core/src/main/java/com/baidu/shop/status/HTTPStatus.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-commoms/mingrui-shop-common-core/src/main/java/com/baidu/shop/utils/JSONUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service-api/mingrui-shop-service-api-xxx/mingrui-shop-service-api-xxx.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service-api/mingrui-shop-service-api-xxx/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service-api/mingrui-shop-service-api-xxx/src/main/java/com/baidu/shop/config/MrSwagger2Config.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service-api/mingrui-shop-service-api-xxx/src/main/java/com/baidu/shop/entity/CategoryEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service-api/mingrui-shop-service-api-xxx/src/main/java/com/baidu/shop/service/CategoryService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service/mingrui-shop-service-xxx/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service/mingrui-shop-service-xxx/src/main/java/com/baidu/RunXXXApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service/mingrui-shop-service-xxx/src/main/java/com/baidu/shop/mapper/CategoryMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service/mingrui-shop-service-xxx/src/main/java/com/baidu/shop/service/impl/CategoryServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mingrui-shop-service/mingrui-shop-service-xxx/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mingrui-shop-commoms/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/mingrui-shop-commoms/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mingrui-shop-service-api/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/mingrui-shop-service-api/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mingrui-shop-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/mingrui-shop-service/pom.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -10,6 +33,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -32,23 +56,31 @@
     </option>
   </component>
   <component name="ProjectId" id="1gfHvkxTbhYCHntUC7WOmjyJdr6" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RequestMappingsPanelOrder0" value="0" />
     <property name="RequestMappingsPanelOrder1" value="1" />
     <property name="RequestMappingsPanelWidth0" value="75" />
     <property name="RequestMappingsPanelWidth1" value="75" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
-  <component name="RunManager">
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RunManager" selected="Spring Boot.RunXXXApplication">
     <configuration name="RunEurekaServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
       <module name="mingrui-shop-basic-eureka-server" />
       <extension name="coverage">
@@ -62,8 +94,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="RunXXXApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <module name="mingrui-shop-service-xxx" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.baidu.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.baidu.RunXXXApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Spring Boot.RunXXXApplication" />
         <item itemvalue="Spring Boot.RunEurekaServerApplication" />
       </list>
     </recent_temporary>
@@ -79,56 +125,106 @@
       <option name="presentableId" value="Default" />
       <updated>1598498958958</updated>
       <workItem from="1598498960541" duration="1047000" />
+      <workItem from="1598500034744" duration="1158000" />
+      <workItem from="1598516069113" duration="4566000" />
     </task>
+    <task id="LOCAL-00001" summary="aaaaa">
+      <created>1598500065584</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1598500065584</updated>
+    </task>
+    <task id="LOCAL-00002" summary="bbbb">
+      <created>1598500158405</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1598500158405</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="2" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="aaaaa" />
+    <MESSAGE value="bbbb" />
+    <option name="LAST_COMMIT_MESSAGE" value="bbbb" />
+  </component>
   <component name="WindowStateProjectService">
-    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1598499747975">
+    <state x="765" y="225" key="#com.intellij.ide.util.MemberChooser" timestamp="1598521687190">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1598499747975" />
-    <state width="1877" height="282" key="GridCell.Tab.0.bottom" timestamp="1598500007949">
+    <state x="765" y="225" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1598521687190" />
+    <state x="317" y="84" key="CommitChangelistDialog2" timestamp="1598500157689">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1598500007949" />
-    <state width="1877" height="282" key="GridCell.Tab.0.center" timestamp="1598500007949">
+    <state x="317" y="84" key="CommitChangelistDialog2/0.0.1920.1040@0.0.1920.1040" timestamp="1598500157689" />
+    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1598508340695">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1598500007949" />
-    <state width="1877" height="282" key="GridCell.Tab.0.left" timestamp="1598500007949">
+    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1598508340695" />
+    <state width="1877" height="398" key="GridCell.Tab.0.bottom" timestamp="1598522075665">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1598500007949" />
-    <state width="1877" height="282" key="GridCell.Tab.0.right" timestamp="1598500007949">
+    <state width="1877" height="398" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1598522075665" />
+    <state width="1877" height="398" key="GridCell.Tab.0.center" timestamp="1598522075665">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1598500007949" />
-    <state width="1877" height="282" key="GridCell.Tab.1.bottom" timestamp="1598500007949">
+    <state width="1877" height="398" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1598522075665" />
+    <state width="1877" height="398" key="GridCell.Tab.0.left" timestamp="1598522075665">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1598500007949" />
-    <state width="1877" height="282" key="GridCell.Tab.1.center" timestamp="1598500007949">
+    <state width="1877" height="398" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1598522075665" />
+    <state width="1877" height="398" key="GridCell.Tab.0.right" timestamp="1598522075665">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1598500007949" />
-    <state width="1877" height="282" key="GridCell.Tab.1.left" timestamp="1598500007949">
+    <state width="1877" height="398" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1598522075665" />
+    <state width="1877" height="398" key="GridCell.Tab.1.bottom" timestamp="1598522070808">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1598500007949" />
-    <state width="1877" height="282" key="GridCell.Tab.1.right" timestamp="1598500007949">
+    <state width="1877" height="398" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1598522070808" />
+    <state width="1877" height="398" key="GridCell.Tab.1.center" timestamp="1598522070808">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="282" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1598500007949" />
-    <state x="461" y="164" key="SettingsEditor" timestamp="1598500007312">
+    <state width="1877" height="398" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1598522070808" />
+    <state width="1877" height="398" key="GridCell.Tab.1.left" timestamp="1598522070807">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="461" y="164" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1598500007312" />
-    <state x="334" y="180" key="new project wizard" timestamp="1598499410271">
+    <state width="1877" height="398" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1598522070807" />
+    <state width="1877" height="398" key="GridCell.Tab.1.right" timestamp="1598522070808">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="334" y="180" key="new project wizard/0.0.1920.1040@0.0.1920.1040" timestamp="1598499410271" />
+    <state width="1877" height="398" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1598522070808" />
+    <state width="1877" height="398" key="GridCell.Tab.2.bottom" timestamp="1598522013776">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="398" key="GridCell.Tab.2.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1598522013776" />
+    <state width="1877" height="398" key="GridCell.Tab.2.center" timestamp="1598522013776">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="398" key="GridCell.Tab.2.center/0.0.1920.1040@0.0.1920.1040" timestamp="1598522013776" />
+    <state width="1877" height="398" key="GridCell.Tab.2.left" timestamp="1598522013776">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="398" key="GridCell.Tab.2.left/0.0.1920.1040@0.0.1920.1040" timestamp="1598522013776" />
+    <state width="1877" height="398" key="GridCell.Tab.2.right" timestamp="1598522013776">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1877" height="398" key="GridCell.Tab.2.right/0.0.1920.1040@0.0.1920.1040" timestamp="1598522013776" />
+    <state x="461" y="164" key="SettingsEditor" timestamp="1598500317821">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="461" y="164" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1598500317821" />
+    <state x="552" y="252" key="Vcs.Push.Dialog.v2" timestamp="1598500185949">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="552" y="252" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1598500185949" />
+    <state x="334" y="180" key="new project wizard" timestamp="1598521228257">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="334" y="180" key="new project wizard/0.0.1920.1040@0.0.1920.1040" timestamp="1598521228257" />
   </component>
 </project>
