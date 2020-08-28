@@ -5,9 +5,9 @@ import com.baidu.shop.base.Result;
 import com.baidu.shop.entity.CategoryEntity;
 import com.baidu.shop.mapper.CategoryMapper;
 import com.baidu.shop.service.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 public class CategoryServiceImpl extends BaseApiService implements CategoryService {
 
-    @Autowired
+    @Resource
     private CategoryMapper categoryMapper;
 
     @Override
@@ -32,6 +32,7 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
 
         List<CategoryEntity> list = categoryMapper.select(categoryEntity);
 
+        //return new Result<List<CategoryEntity>>(HTTPStatus.OK,"",list);
         return this.setResultSuccess(list);
     }
 }
