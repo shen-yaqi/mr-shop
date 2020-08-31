@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Id;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -17,7 +16,7 @@ import javax.validation.constraints.NotNull;
  * @Date 2020/8/31
  * @Version V1.0
  **/
-@ApiModel(value = "品牌实体类")
+@ApiModel(value = "品牌数据传输DTO")
 @Data
 public class BrandDTO extends BaseDTO {
 

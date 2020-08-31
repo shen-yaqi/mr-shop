@@ -6,9 +6,12 @@ import com.baidu.shop.dto.BrandDTO;
 import com.baidu.shop.entity.BrandEntity;
 import com.baidu.shop.mapper.BrandMapper;
 import com.baidu.shop.service.BrandService;
+import com.baidu.shop.utils.BaiduBeanUtil;
 import com.baidu.shop.utils.StringUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.JsonObject;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
@@ -44,7 +47,6 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
         if (StringUtil.isNotEmpty(brandDTO.getName())) example.createCriteria()
                 .andLike("name","%" + brandDTO.getName() + "%");
 
-
         //查询
         List<BrandEntity> list = brandMapper.selectByExample(example);
 
@@ -53,5 +55,13 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
 
         //返回
         return this.setResultSuccess(pageInfo);
+    }
+
+    @Transactional
+    @Override
+    public Result<JsonObject> saveBrand(BrandDTO brandDTO) {
+
+        brandMapper.insertSelective(BaiduBeanUtil.copyProperties(brandDTO,BrandEntity.class));
+        return this.setResultSuccess();
     }
 }

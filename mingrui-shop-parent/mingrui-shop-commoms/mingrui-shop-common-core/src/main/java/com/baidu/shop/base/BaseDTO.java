@@ -26,7 +26,7 @@ public class BaseDTO {
     @ApiModelProperty(value = "排序字段")
     private String sort;
 
-    @ApiModelProperty(value = "是否升序")
+    @ApiModelProperty(value = "是否降序")
     private Boolean desc;
 
     //隐藏此函数,不在swagger-ui上显示
