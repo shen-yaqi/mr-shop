@@ -18,4 +18,5 @@ public class ObjectUtil {
 
         return null != obj;
     }
+
 }

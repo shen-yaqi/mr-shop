@@ -1,6 +1,7 @@
 package com.baidu.shop.service;
 
 import com.baidu.shop.base.Result;
+import com.baidu.shop.dto.BrandDTO;
 import com.baidu.shop.entity.BrandEntity;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -21,6 +22,6 @@ public interface BrandService {
 
     @GetMapping(value = "brand/getBrandInfo")
     @ApiOperation(value = "查询品牌信息")
-    Result<PageInfo<BrandEntity>> getBrandInfo(Integer page, Integer rows,String sort,Boolean desc);
+    Result<PageInfo<BrandEntity>> getBrandInfo(BrandDTO brandDTO);
 
 }

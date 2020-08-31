@@ -19,22 +19,15 @@ import javax.validation.constraints.NotNull;
  **/
 @Table(name = "tb_brand")
 @Data
-@ApiModel(value = "品牌实体类")
 public class BrandEntity {
 
     @Id
-    @ApiModelProperty(value = "品牌id", example = "1")
-    @NotNull(message = "id不能为空", groups = {MingruiOperation.Update.class})
     private Integer id;
 
-    @ApiModelProperty(value = "品牌名称")
-    @NotEmpty(message = "品牌名称不能为空", groups = {MingruiOperation.Add.class})
     private String name;
 
-    @ApiModelProperty(value = "品牌logo")
     private String image;
 
-    @ApiModelProperty(value = "品牌首字母")
     private Character letter;//setCharacterEncoding
 
 }
