@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
@@ -22,6 +24,7 @@ import javax.validation.constraints.NotNull;
 public class BrandEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)//使用的主键生成策略
     private Integer id;
 
     private String name;
