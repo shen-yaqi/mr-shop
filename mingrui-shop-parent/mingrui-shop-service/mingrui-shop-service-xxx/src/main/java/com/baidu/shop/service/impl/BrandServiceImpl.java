@@ -73,7 +73,6 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
 
         //java中一个方法的大小最多是一整个屏幕
         //新增品牌并且可以返回主键
-
         BrandEntity brandEntity = BaiduBeanUtil.copyProperties(brandDTO, BrandEntity.class);
 
         //获取到品牌名称
