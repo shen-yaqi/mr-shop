@@ -14,6 +14,7 @@ import com.baidu.shop.utils.StringUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.JsonObject;
+import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
@@ -67,17 +68,47 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
 
         brandMapper.insertSelective(brandEntity);
 
+        this.insertCategoryAndBrand(brandDTO, brandEntity);
+
+        return this.setResultSuccess();
+    }
+
+    @Transactional
+    @Override
+    public Result<JsonObject> editBrand(BrandDTO brandDTO) {
+
+        BrandEntity brandEntity = BaiduBeanUtil.copyProperties(brandDTO, BrandEntity.class);
+        brandEntity.setLetter(PinyinUtil.getUpperCase(String.valueOf(brandEntity.getName().charAt(0))
+                , PinyinUtil.TO_FIRST_CHAR_PINYIN).charAt(0));
+
+        //执行修改操作
+        brandMapper.updateByPrimaryKeySelective(brandEntity);
+
+        //通过brandID删除中间表的数据
+        Example example = new Example(CategoryBrandEntity.class);
+        example.createCriteria().andEqualTo("brandId",brandEntity.getId());
+        categoryBrandMapper.deleteByExample(example);
+
+        //新增新的数据
+        this.insertCategoryAndBrand(brandDTO,brandEntity);
+
+        return this.setResultSuccess();
+    }
+
+    //@Transactional
+    private void insertCategoryAndBrand(BrandDTO brandDTO, BrandEntity brandEntity){
+
         if(brandDTO.getCategory().contains(",")){
 
             List<CategoryBrandEntity> categoryBrandEntities = Arrays.asList(brandDTO.getCategory().split(","))
                     .stream().map(cid -> {
 
-                CategoryBrandEntity entity = new CategoryBrandEntity();
-                entity.setCategoryId(StringUtil.toInteger(cid));
-                entity.setBrandId(brandEntity.getId());
+                        CategoryBrandEntity entity = new CategoryBrandEntity();
+                        entity.setCategoryId(StringUtil.toInteger(cid));
+                        entity.setBrandId(brandEntity.getId());
 
-                return entity;
-            }).collect(Collectors.toList());
+                        return entity;
+                    }).collect(Collectors.toList());
 
             categoryBrandMapper.insertList(categoryBrandEntities);
         }else{
@@ -88,7 +119,5 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
 
             categoryBrandMapper.insertSelective(entity);
         }
-
-        return this.setResultSuccess();
     }
 }
