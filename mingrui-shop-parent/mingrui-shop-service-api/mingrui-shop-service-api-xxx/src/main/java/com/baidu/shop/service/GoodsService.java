@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName GoodsService
@@ -22,5 +23,5 @@ public interface GoodsService {
 
     @ApiOperation(value = "获取spu信息")
     @GetMapping(value = "goods/getSpuInfo")
-    public Result<PageInfo<SpuEntity>> getSpuInfo(SpuDTO spuDTO);
+    public Result<Map<String, Object>> getSpuInfo(SpuDTO spuDTO);
 }
