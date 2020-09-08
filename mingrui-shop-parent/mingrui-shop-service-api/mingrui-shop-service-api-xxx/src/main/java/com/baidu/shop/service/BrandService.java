@@ -40,4 +40,8 @@ public interface BrandService {
     @ApiOperation(value = "通过id删除品牌信息")
     Result<JsonObject> deleteBrand(Integer id);
 
+    @GetMapping(value = "brand/getBrandByCate")
+    @ApiOperation(value = "通过分类id查询品牌信息")
+    Result<List<BrandEntity>> getBrandByCate(Integer cid);
+
 }
