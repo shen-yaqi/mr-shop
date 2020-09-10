@@ -6,7 +6,6 @@ import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.BrandDTO;
 import com.baidu.shop.dto.SkuDTO;
 import com.baidu.shop.dto.SpuDTO;
-import com.baidu.shop.dto.SpuDetailDTO;
 import com.baidu.shop.entity.*;
 import com.baidu.shop.mapper.*;
 import com.baidu.shop.service.BrandService;
@@ -56,6 +55,33 @@ public class GoodsServiceImpl extends BaseApiService implements GoodsService {
 
     @Transactional
     @Override
+    public Result<JSONObject> delInfo(Integer spuId) {
+
+        //删除spu
+        spuMapper.deleteByPrimaryKey(spuId);
+        //删除detail
+        spuDetailMapper.deleteByPrimaryKey(spuId);
+
+        this.delSkusAndStocks(spuId);
+        return this.setResultSuccess();
+    }
+
+    private void delSkusAndStocks(Integer spuId){
+        Example example = new Example(SkuEntity.class);
+        example.createCriteria().andEqualTo("spuId",spuId);
+        //通过spuId查询出来将要被删除的Sku
+        List<Long> skuIdList = skuMapper.selectByExample(example)
+                .stream()
+                .map(sku -> sku.getId())
+                .collect(Collectors.toList());
+        //通过skuId集合删除sku
+        skuMapper.deleteByIdList(skuIdList);
+        //通过skuId集合删除stock
+        stockMapper.deleteByIdList(skuIdList);
+    }
+
+    @Transactional
+    @Override
     public Result<JSONObject> editInfo(SpuDTO spuDTO) {
         Date date = new Date();
         //修改spu信息
@@ -66,17 +92,7 @@ public class GoodsServiceImpl extends BaseApiService implements GoodsService {
         //修改spudetail
         spuDetailMapper.updateByPrimaryKeySelective(BaiduBeanUtil.copyProperties(spuDTO.getSpuDetail(),SpuDetailEntity.class));
 
-        Example example = new Example(SkuEntity.class);
-        example.createCriteria().andEqualTo("spuId",spuDTO.getId());
-        //通过spuId查询出来将要被删除的Sku
-        List<Long> skuIdList = skuMapper.selectByExample(example)
-                .stream()
-                .map(sku -> sku.getId())
-                .collect(Collectors.toList());
-        //通过skuId集合删除sku
-        skuMapper.deleteByIdList(skuIdList);
-        //通过skuId集合删除stock
-        stockMapper.deleteByIdList(skuIdList);
+        this.delSkusAndStocks(spuDTO.getId());
 
         //新增 sku和stock数据
         this.addSkusAndStocks(spuDTO.getSkus(),spuDTO.getId(),date);
