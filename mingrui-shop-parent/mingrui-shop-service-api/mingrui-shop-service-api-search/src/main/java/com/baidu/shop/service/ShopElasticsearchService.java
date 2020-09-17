@@ -16,7 +16,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Api(tags = "es接口")
 public interface ShopElasticsearchService {
 
-    @ApiOperation(value = "获取商品信息测试")
-    @GetMapping(value = "es/goodsInfo")
-    Result<JSONObject> esGoodsInfo();
+    @ApiOperation(value = "清空ES中的商品数据")
+    @GetMapping(value = "es/clearGoodsEsData")
+    Result<JSONObject> clearEsData();
+
+    @ApiOperation(value = "初始化es数据")
+    @GetMapping(value = "es/initEsData")
+    Result<JSONObject> initEsData();
+
 }

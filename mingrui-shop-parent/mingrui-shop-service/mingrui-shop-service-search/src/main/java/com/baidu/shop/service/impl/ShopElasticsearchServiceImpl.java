@@ -13,11 +13,12 @@ import com.baidu.shop.feign.GoodsFeign;
 import com.baidu.shop.feign.SpecificationFeign;
 import com.baidu.shop.service.ShopElasticsearchService;
 import com.baidu.shop.status.HTTPStatus;
-import com.baidu.shop.utils.BaiduBeanUtil;
 import com.baidu.shop.utils.JSONUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  * @Version V1.0
  **/
 @RestController
+@Slf4j
 public class ShopElasticsearchServiceImpl extends BaseApiService implements ShopElasticsearchService {
 
     @Autowired
@@ -42,19 +44,44 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
     @Autowired
     private SpecificationFeign specificationFeign;
 
-    @Override
-    public Result<JSONObject> esGoodsInfo() {
+    @Autowired
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
+    @Override
+    public Result<JSONObject> initEsData() {
+        IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
+        if(!indexOperations.exists()){
+            indexOperations.create();
+            log.info("索引创建成功");
+            indexOperations.createMapping();
+            log.info("映射创建成功");
+        }
+
+        //批量新增数据
+        List<GoodsDoc> goodsDocs = this.esGoodsInfo();
+        elasticsearchRestTemplate.save(goodsDocs);
+
+        return this.setResultSuccess();
+    }
+
+    @Override
+    public Result<JSONObject> clearEsData() {
+        IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
+        if(indexOperations.exists()){
+            indexOperations.delete();
+            log.info("索引删除成功");
+        }
+
+        return this.setResultSuccess();
+    }
+
+    private List<GoodsDoc> esGoodsInfo() {
+        //查询出来的数据是多个spu
+        List<GoodsDoc> goodsDocs = new ArrayList<>();
         //查询spu信息
         SpuDTO spuDTO = new SpuDTO();
-        spuDTO.setPage(1);
-        spuDTO.setRows(5);
         Result<List<SpuDTO>> spuInfo = goodsFeign.getSpuInfo(spuDTO);
-
         if(spuInfo.getCode() == HTTPStatus.OK){
-
-            //查询出来的数据是多个spu
-            List<GoodsDoc> goodsDocs = new ArrayList<>();
 
             //spu数据
             List<SpuDTO> spuList = spuInfo.getData();
@@ -83,8 +110,6 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
                     goodsDoc.setSkus(JSONUtil.toJsonString(value));
                 });
 
-                //任意类型都可以做为map集合的key吗?
-
                 //通过cid3查询规格参数
                 Map<String, Object> specMap = this.getSpecMap(spu);
 
@@ -92,10 +117,9 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
                 goodsDocs.add(goodsDoc);
 
             });
-            System.out.println(goodsDocs);
         }
 
-        return this.setResultSuccess();
+        return goodsDocs;
     }
 
     private Map<List<Long>, List<Map<String, Object>>> getSkusAndPriceList(Integer spuId){
