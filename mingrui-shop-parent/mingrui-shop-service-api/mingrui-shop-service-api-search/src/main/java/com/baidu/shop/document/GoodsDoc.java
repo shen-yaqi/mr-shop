@@ -51,7 +51,7 @@ public class GoodsDoc {
     @Field(type = FieldType.Keyword, index = false)
     private String skus;
 
-    //规格
+    //规格 key:paramName value:paramValue
     private Map<String, Object> specs;
 
 }
