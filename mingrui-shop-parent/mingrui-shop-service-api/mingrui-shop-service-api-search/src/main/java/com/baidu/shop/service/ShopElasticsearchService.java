@@ -30,6 +30,6 @@ public interface ShopElasticsearchService {
 
     @ApiOperation(value = "查询数据")
     @GetMapping(value = "es/search")
-    Result<List<GoodsDoc>> search(String search);
+    Result<List<GoodsDoc>> search(String search, Integer page);
 
 }

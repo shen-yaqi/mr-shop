@@ -56,7 +56,7 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     @Override
-    public Result<List<GoodsDoc>> search(String search) {
+    public Result<List<GoodsDoc>> search(String search, Integer page) {
 
         //判断搜索哦的内容不为空
         if (StringUtil.isEmpty(search)) return this.setResultError("查询内容不能为null");
@@ -67,15 +67,37 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
         //高亮
         searchQueryBuilder.withHighlightBuilder(ESHighLightUtil.getHighlightBuilder("title"));
         //分页
-        searchQueryBuilder.withPageable(PageRequest.of(2-1,10));
+        searchQueryBuilder.withPageable(PageRequest.of(page-1,10));
 
         SearchHits<GoodsDoc> searchHits = elasticsearchRestTemplate.search(searchQueryBuilder.build(), GoodsDoc.class);
 
         List<SearchHit<GoodsDoc>> highLightHits = ESHighLightUtil.getHighLightHit(searchHits.getSearchHits());
         //要返回的数据
         List<GoodsDoc> goodsList = highLightHits.stream().map(searchHit -> searchHit.getContent()).collect(Collectors.toList());
+        //searchHits.getTotalHits()
 
-        return this.setResultSuccess(goodsList);
+        long total = searchHits.getTotalHits();
+        //Integer totalPage = total / 10;
+
+        //20 / 8 = 2
+        //20.0 /8 = 2.5
+
+        //double ceil = Math.ceil(Long.valueOf(total).doubleValue() / 10);
+        //将double转换成整型 byte(字节型) short(短整型) integer(整型) long(长整型) char-->Character setCharacterEncoding
+        //基本数据类型几乎.不出来任何东西
+        //基本数据类型和包装数据类型如何拆装箱?????
+        long totalPage = Double.valueOf(Math.ceil(Long.valueOf(total).doubleValue() / 10)).longValue();
+
+        //String message = total + "," + totalPage;
+
+        Map<String, Long> messageMap = new HashMap<>();
+        messageMap.put("total",total);
+        messageMap.put("totalPage",totalPage);
+        messageMap.toString();
+
+        //传到前台是一个json字符串-->JSON.parse(message) obj.total,obj.totalPage
+
+        return this.setResult(HTTPStatus.OK,JSONUtil.toJsonString(messageMap),goodsList);
     }
 
     @Override
