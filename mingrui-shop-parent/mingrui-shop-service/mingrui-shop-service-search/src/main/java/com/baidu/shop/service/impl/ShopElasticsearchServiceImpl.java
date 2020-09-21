@@ -24,7 +24,6 @@ import com.baidu.shop.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -69,16 +68,43 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
     @Autowired
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
+    /**
+     * 搜索
+     * @param search
+     * @param page
+     * @return
+     */
     @Override
-    public Result<List<GoodsDoc>> search(String search, Integer page) {
+    public GoodsResponse search(String search, Integer page) {
 
-        //判断搜索哦的内容不为空
-        if (StringUtil.isEmpty(search)) return this.setResultError("查询内容不能为null");
+        //判断搜索的内容不为空
+        if (StringUtil.isEmpty(search)) throw new RuntimeException("搜索的内容不能为空");
 
+        SearchHits<GoodsDoc> searchHits = elasticsearchRestTemplate.search(this.getSearchQueryBuilder(search,page).build(), GoodsDoc.class);
+        List<SearchHit<GoodsDoc>> highLightHits = ESHighLightUtil.getHighLightHit(searchHits.getSearchHits());
+        //返回的商品集合
+        List<GoodsDoc> goodsList = highLightHits.stream().map(searchHit -> searchHit.getContent()).collect(Collectors.toList());
+        //总条数&总页数
+        long total = searchHits.getTotalHits();
+        long totalPage = Double.valueOf(Math.ceil(Long.valueOf(total).doubleValue() / 10)).longValue();
+
+        Aggregations aggregations = searchHits.getAggregations();
+        List<CategoryEntity> categoryList = this.getCategoryList(aggregations);//获取分类集合
+        List<BrandEntity> brandList = this.getBrandList(aggregations);//获取品牌集合
+
+        return new GoodsResponse(total, totalPage, brandList, categoryList, goodsList);
+    }
+
+    /**
+     * 构建查询条件
+     * @param search
+     * @param page
+     * @return
+     */
+    private NativeSearchQueryBuilder getSearchQueryBuilder(String search, Integer page){
         NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();
         //match通过值只能查询一个字段 和 multiMatch 通过值查询多个字段???
         searchQueryBuilder.withQuery(QueryBuilders.multiMatchQuery(search,"brandName","categoryName","title"));
-
         //品牌
         //分类--> cid3g
         searchQueryBuilder.addAggregation(AggregationBuilders.terms("cid_agg").field("cid3"));
@@ -88,66 +114,47 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
         searchQueryBuilder.withHighlightBuilder(ESHighLightUtil.getHighlightBuilder("title"));
         //分页
         searchQueryBuilder.withPageable(PageRequest.of(page-1,10));
+        return searchQueryBuilder;
+    }
 
-        SearchHits<GoodsDoc> searchHits = elasticsearchRestTemplate.search(searchQueryBuilder.build(), GoodsDoc.class);
-
-        List<SearchHit<GoodsDoc>> highLightHits = ESHighLightUtil.getHighLightHit(searchHits.getSearchHits());
-        //要返回的数据
-        List<GoodsDoc> goodsList = highLightHits.stream().map(searchHit -> searchHit.getContent()).collect(Collectors.toList());
-        //searchHits.getTotalHits()
-
-        long total = searchHits.getTotalHits();
-        //Integer totalPage = total / 10;
-
-        //20 / 8 = 2
-        //20.0 /8 = 2.5
-
-        //double ceil = Math.ceil(Long.valueOf(total).doubleValue() / 10);
-        //将double转换成整型 byte(字节型) short(短整型) integer(整型) long(长整型) char-->Character setCharacterEncoding
-        //基本数据类型几乎.不出来任何东西
-        //基本数据类型和包装数据类型如何拆装箱?????
-        long totalPage = Double.valueOf(Math.ceil(Long.valueOf(total).doubleValue() / 10)).longValue();
-
-        //String message = total + "," + totalPage;
-
-        Map<String, Long> messageMap = new HashMap<>();
-        messageMap.put("total",total);
-        messageMap.put("totalPage",totalPage);
-
-
-        //传到前台是一个json字符串-->JSON.parse(message) obj.total,obj.totalPage
-
-        Aggregations aggregations = searchHits.getAggregations();
-
-        Terms cid_agg = aggregations.get("cid_agg");
+    /**
+     * 获取品牌集合
+     * @param aggregations
+     * @return
+     */
+    private List<BrandEntity> getBrandList(Aggregations aggregations){
         Terms brand_agg = aggregations.get("brand_agg");
+        List<String> brandIdList = brand_agg.getBuckets().stream().map(brandBucket -> brandBucket.getKeyAsNumber().intValue() + "").collect(Collectors.toList());
+        //通过品牌id集合去查询数据
+        Result<List<BrandEntity>> brandResult = brandFeign.getBrandByIdList(String.join(",", brandIdList));
+        return brandResult.getData();
+    }
+
+    /**
+     * 获取分类集合
+     * @param aggregations
+     * @return
+     */
+    private List<CategoryEntity> getCategoryList(Aggregations aggregations){
+        Terms cid_agg = aggregations.get("cid_agg");
         List<? extends Terms.Bucket> cidBuckets = cid_agg.getBuckets();
-        //返回一个id的集合-->通过id的集合去查询数据
-        //StringBuffer
+
         List<String> cidList = cidBuckets.stream().map(cidbucket -> {
             Number keyAsNumber = cidbucket.getKeyAsNumber();
             //cidbucket.getKeyAsString()
             return keyAsNumber.intValue() + "";
         }).collect(Collectors.toList());
 
-        //通过分类id集合去查询数据
-        //将List集合转换成,分隔的string字符串
-        // String.join(",", cidList); 通过,分隔list集合 --> 返回,拼接的string字符串
         String cidsStr = String.join(",", cidList);
         Result<List<CategoryEntity>> caterogyResult = categoryFeign.getCategoryByIdList(cidsStr);
 
-        List<? extends Terms.Bucket> brandBuckets = brand_agg.getBuckets();
-
-        List<String> brandIdList = brandBuckets.stream().map(brandBucket -> brandBucket.getKeyAsNumber().intValue() + "").collect(Collectors.toList());
-
-        //通过品牌id集合去查询数据
-        Result<List<BrandEntity>> brandResult = brandFeign.getBrandByIdList(String.join(",", brandIdList));
-
-        GoodsResponse goodsResponse = new GoodsResponse(total, totalPage, brandResult.getData(), caterogyResult.getData(), goodsList);
-
-        return this.setResult(HTTPStatus.OK,JSONUtil.toJsonString(messageMap),goodsList);
+        return caterogyResult.getData();
     }
 
+    /**
+     * 初始化es数据
+     * @return
+     */
     @Override
     public Result<JSONObject> initEsData() {
         IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
@@ -165,6 +172,10 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
         return this.setResultSuccess();
     }
 
+    /**
+     * 清空es数据
+     * @return
+     */
     @Override
     public Result<JSONObject> clearEsData() {
         IndexOperations indexOperations = elasticsearchRestTemplate.indexOps(GoodsDoc.class);
@@ -176,6 +187,10 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
         return this.setResultSuccess();
     }
 
+    /**
+     * 获取mysql的数据
+     * @return
+     */
     private List<GoodsDoc> esGoodsInfo() {
         //查询出来的数据是多个spu
         List<GoodsDoc> goodsDocs = new ArrayList<>();
