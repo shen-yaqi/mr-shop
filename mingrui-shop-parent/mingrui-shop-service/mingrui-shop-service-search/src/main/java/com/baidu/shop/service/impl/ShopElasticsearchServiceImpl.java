@@ -7,19 +7,27 @@ import com.baidu.shop.document.GoodsDoc;
 import com.baidu.shop.dto.SkuDTO;
 import com.baidu.shop.dto.SpecParamDTO;
 import com.baidu.shop.dto.SpuDTO;
+import com.baidu.shop.entity.BrandEntity;
+import com.baidu.shop.entity.CategoryEntity;
 import com.baidu.shop.entity.SpecParamEntity;
 import com.baidu.shop.entity.SpuDetailEntity;
+import com.baidu.shop.feign.BrandFeign;
+import com.baidu.shop.feign.CategoryFeign;
 import com.baidu.shop.feign.GoodsFeign;
 import com.baidu.shop.feign.SpecificationFeign;
+import com.baidu.shop.response.GoodsResponse;
 import com.baidu.shop.service.ShopElasticsearchService;
 import com.baidu.shop.status.HTTPStatus;
 import com.baidu.shop.utils.ESHighLightUtil;
 import com.baidu.shop.utils.JSONUtil;
 import com.baidu.shop.utils.StringUtil;
-import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -53,6 +61,12 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
     private SpecificationFeign specificationFeign;
 
     @Autowired
+    private CategoryFeign categoryFeign;
+
+    @Autowired
+    private BrandFeign brandFeign;
+
+    @Autowired
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     @Override
@@ -64,6 +78,12 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
         NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();
         //match通过值只能查询一个字段 和 multiMatch 通过值查询多个字段???
         searchQueryBuilder.withQuery(QueryBuilders.multiMatchQuery(search,"brandName","categoryName","title"));
+
+        //品牌
+        //分类--> cid3g
+        searchQueryBuilder.addAggregation(AggregationBuilders.terms("cid_agg").field("cid3"));
+        searchQueryBuilder.addAggregation(AggregationBuilders.terms("brand_agg").field("brandId"));
+
         //高亮
         searchQueryBuilder.withHighlightBuilder(ESHighLightUtil.getHighlightBuilder("title"));
         //分页
@@ -93,9 +113,37 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
         Map<String, Long> messageMap = new HashMap<>();
         messageMap.put("total",total);
         messageMap.put("totalPage",totalPage);
-        messageMap.toString();
+
 
         //传到前台是一个json字符串-->JSON.parse(message) obj.total,obj.totalPage
+
+        Aggregations aggregations = searchHits.getAggregations();
+
+        Terms cid_agg = aggregations.get("cid_agg");
+        Terms brand_agg = aggregations.get("brand_agg");
+        List<? extends Terms.Bucket> cidBuckets = cid_agg.getBuckets();
+        //返回一个id的集合-->通过id的集合去查询数据
+        //StringBuffer
+        List<String> cidList = cidBuckets.stream().map(cidbucket -> {
+            Number keyAsNumber = cidbucket.getKeyAsNumber();
+            //cidbucket.getKeyAsString()
+            return keyAsNumber.intValue() + "";
+        }).collect(Collectors.toList());
+
+        //通过分类id集合去查询数据
+        //将List集合转换成,分隔的string字符串
+        // String.join(",", cidList); 通过,分隔list集合 --> 返回,拼接的string字符串
+        String cidsStr = String.join(",", cidList);
+        Result<List<CategoryEntity>> caterogyResult = categoryFeign.getCategoryByIdList(cidsStr);
+
+        List<? extends Terms.Bucket> brandBuckets = brand_agg.getBuckets();
+
+        List<String> brandIdList = brandBuckets.stream().map(brandBucket -> brandBucket.getKeyAsNumber().intValue() + "").collect(Collectors.toList());
+
+        //通过品牌id集合去查询数据
+        Result<List<BrandEntity>> brandResult = brandFeign.getBrandByIdList(String.join(",", brandIdList));
+
+        GoodsResponse goodsResponse = new GoodsResponse(total, totalPage, brandResult.getData(), caterogyResult.getData(), goodsList);
 
         return this.setResult(HTTPStatus.OK,JSONUtil.toJsonString(messageMap),goodsList);
     }
