@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @ClassName GoodsResponse
@@ -30,12 +31,17 @@ public class GoodsResponse extends Result<List<GoodsDoc>> {
 
     private List<BrandEntity> brandList;
 
-    public GoodsResponse(Long total, Long totalPage, List<BrandEntity> brandList, List<CategoryEntity> categoryList, List<GoodsDoc> goodsDocs){
+    private Map<String, List<String>> specParamValueMap;
+
+    public GoodsResponse(Long total, Long totalPage, List<BrandEntity> brandList
+            , List<CategoryEntity> categoryList, List<GoodsDoc> goodsDocs
+            ,Map<String, List<String>> specParamValueMap){
         super(HTTPStatus.OK,HTTPStatus.OK + "",goodsDocs);
 
         this.total = total;
         this.totalPage = totalPage;
         this.categoryList = categoryList;
         this.brandList = brandList;
+        this.specParamValueMap = specParamValueMap;
     }
 }

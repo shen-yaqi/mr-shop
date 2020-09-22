@@ -24,6 +24,7 @@ import com.baidu.shop.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -100,11 +101,54 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
             categoryList = mapEntry.getValue();
         }
 
+        //通过cid去查询规格参数
+        Map<String, List<String>> specParamValueMap = this.getspecParam(hotCid, search);
+
         List<BrandEntity> brandList = this.getBrandList(aggregations);//获取品牌集合
 
-        return new GoodsResponse(total, totalPage, brandList, categoryList, goodsList);
+        return new GoodsResponse(total, totalPage, brandList, categoryList, goodsList,specParamValueMap);
     }
 
+    private Map<String, List<String>> getspecParam(Integer hotCid,String search){
+
+        SpecParamDTO specParamDTO = new SpecParamDTO();
+        specParamDTO.setCid(hotCid);
+        specParamDTO.setSearching(true);//只搜索有查询属性的规格参数
+
+        Result<List<SpecParamEntity>> specParamResult = specificationFeign.getSpecParamInfo(specParamDTO);
+        if(specParamResult.getCode() == 200){
+            List<SpecParamEntity> specParamList = specParamResult.getData();
+            //聚合查询
+            NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+            queryBuilder.withQuery(QueryBuilders.multiMatchQuery(search,"brandName","categoryName","title"));
+
+            //分页必须得查询一条数据
+            queryBuilder.withPageable(PageRequest.of(0,1));
+
+            specParamList.stream().forEach(specParam -> {
+                queryBuilder.addAggregation(AggregationBuilders.terms(specParam.getName()).field("specs." + specParam.getName() + ".keyword"));
+            });
+
+            SearchHits<GoodsDoc> searchHits = elasticsearchRestTemplate.search(queryBuilder.build(), GoodsDoc.class);
+
+            //key:paramName value-->aggr
+            Map<String, List<String>> map = new HashMap<>();
+            Aggregations aggregations = searchHits.getAggregations();
+
+            specParamList.stream().forEach(specParam -> {
+
+                Terms terms = aggregations.get(specParam.getName());
+                List<? extends Terms.Bucket> buckets = terms.getBuckets();
+                List<String> valueList = buckets.stream().map(bucket -> bucket.getKeyAsString()).collect(Collectors.toList());
+
+                map.put(specParam.getName(),valueList);
+            });
+
+            return map;
+        }
+
+        return null;
+    }
     /**
      * 构建查询条件
      * @param search
