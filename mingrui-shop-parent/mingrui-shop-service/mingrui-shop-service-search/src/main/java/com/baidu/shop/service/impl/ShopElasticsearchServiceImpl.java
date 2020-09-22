@@ -36,10 +36,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -89,7 +86,20 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
         long totalPage = Double.valueOf(Math.ceil(Long.valueOf(total).doubleValue() / 10)).longValue();
 
         Aggregations aggregations = searchHits.getAggregations();
-        List<CategoryEntity> categoryList = this.getCategoryList(aggregations);//获取分类集合
+
+        //List<CategoryEntity> categoryList = this.getCategoryList(aggregations);//获取分类集合
+
+        Map<Integer, List<CategoryEntity>> map = this.getCategoryList(aggregations);
+
+        List<CategoryEntity> categoryList = null;
+        Integer hotCid = 0;
+
+        //遍历map集合的方式?????
+        for(Map.Entry<Integer,List<CategoryEntity>> mapEntry : map.entrySet()){
+            hotCid = mapEntry.getKey();
+            categoryList = mapEntry.getValue();
+        }
+
         List<BrandEntity> brandList = this.getBrandList(aggregations);//获取品牌集合
 
         return new GoodsResponse(total, totalPage, brandList, categoryList, goodsList);
@@ -135,20 +145,35 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
      * @param aggregations
      * @return
      */
-    private List<CategoryEntity> getCategoryList(Aggregations aggregations){
+    private Map<Integer, List<CategoryEntity>> getCategoryList(Aggregations aggregations){
         Terms cid_agg = aggregations.get("cid_agg");
         List<? extends Terms.Bucket> cidBuckets = cid_agg.getBuckets();
 
+        //热度最高cid
+        //java里面一个方法可以有两个返回值吗????
+        List<Integer> hotCidArr = Arrays.asList(0);
+
+        List<Long> maxCount = Arrays.asList(0L);
+
+        Map<Integer, List<CategoryEntity>> map = new HashMap<>();
+
+        //不使用lambda表达式-->forEach
         List<String> cidList = cidBuckets.stream().map(cidbucket -> {
             Number keyAsNumber = cidbucket.getKeyAsNumber();
-            //cidbucket.getKeyAsString()
+
+            if(cidbucket.getDocCount() > maxCount.get(0)){
+                maxCount.set(0,cidbucket.getDocCount());
+                hotCidArr.set(0,keyAsNumber.intValue());
+            }
+
             return keyAsNumber.intValue() + "";
         }).collect(Collectors.toList());
 
         String cidsStr = String.join(",", cidList);
         Result<List<CategoryEntity>> caterogyResult = categoryFeign.getCategoryByIdList(cidsStr);
 
-        return caterogyResult.getData();
+        map.put(hotCidArr.get(0),caterogyResult.getData());
+        return map;
     }
 
     /**
