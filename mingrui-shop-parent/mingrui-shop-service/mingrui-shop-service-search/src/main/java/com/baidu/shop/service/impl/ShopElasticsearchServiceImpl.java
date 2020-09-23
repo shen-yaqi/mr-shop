@@ -23,6 +23,8 @@ import com.baidu.shop.utils.JSONUtil;
 import com.baidu.shop.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -73,12 +75,15 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
      * @return
      */
     @Override
-    public GoodsResponse search(String search, Integer page) {
+    public GoodsResponse search(String search, Integer page,String filter) {
+
+
+        System.out.println(filter);
 
         //判断搜索的内容不为空
         if (StringUtil.isEmpty(search)) throw new RuntimeException("搜索的内容不能为空");
 
-        SearchHits<GoodsDoc> searchHits = elasticsearchRestTemplate.search(this.getSearchQueryBuilder(search,page).build(), GoodsDoc.class);
+        SearchHits<GoodsDoc> searchHits = elasticsearchRestTemplate.search(this.getSearchQueryBuilder(search,page,filter).build(), GoodsDoc.class);
         List<SearchHit<GoodsDoc>> highLightHits = ESHighLightUtil.getHighLightHit(searchHits.getSearchHits());
         //返回的商品集合
         List<GoodsDoc> goodsList = highLightHits.stream().map(searchHit -> searchHit.getContent()).collect(Collectors.toList());
@@ -155,8 +160,27 @@ public class ShopElasticsearchServiceImpl extends BaseApiService implements Shop
      * @param page
      * @return
      */
-    private NativeSearchQueryBuilder getSearchQueryBuilder(String search, Integer page){
+    private NativeSearchQueryBuilder getSearchQueryBuilder(String search, Integer page, String filter){
         NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();
+
+        if(StringUtil.isNotEmpty(filter) && filter.length() > 2){
+            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+            Map<String, String> filterMap = JSONUtil.toMapValueString(filter);
+
+            filterMap.forEach((key,value) -> {
+                MatchQueryBuilder matchQueryBuilder = null;
+
+                //分类 品牌和 规格参数的查询方式不一样
+                if(key.equals("cid3") || key.equals("brandId")){
+                    matchQueryBuilder = QueryBuilders.matchQuery(key, value);
+                }else{
+                    matchQueryBuilder = QueryBuilders.matchQuery("specs." + key + ".keyword",value);
+                }
+                boolQueryBuilder.must(matchQueryBuilder);
+            });
+            searchQueryBuilder.withFilter(boolQueryBuilder);
+        }
+
         //match通过值只能查询一个字段 和 multiMatch 通过值查询多个字段???
         searchQueryBuilder.withQuery(QueryBuilders.multiMatchQuery(search,"brandName","categoryName","title"));
         //品牌
