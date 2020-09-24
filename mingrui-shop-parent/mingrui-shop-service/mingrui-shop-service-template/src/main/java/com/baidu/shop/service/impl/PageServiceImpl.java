@@ -110,6 +110,7 @@ public class PageServiceImpl implements PageService {
                     map.put("spuDetailEntity",spuDetailEntity);
                 }
 
+                //规格
             }
         }
 
