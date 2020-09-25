@@ -1,5 +1,7 @@
 package com.baidu.shop.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.*;
 import com.baidu.shop.entity.*;
@@ -7,12 +9,20 @@ import com.baidu.shop.feign.BrandFeign;
 import com.baidu.shop.feign.CategoryFeign;
 import com.baidu.shop.feign.GoodsFeign;
 import com.baidu.shop.feign.SpecificationFeign;
-import com.baidu.shop.service.PageService;
+import com.baidu.shop.service.TemplateService;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,29 +30,90 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @ClassName PageServiceImpl
+ * @ClassName TemplateServiceImpl
  * @Description: TODO
  * @Author shenyaqi
- * @Date 2020/9/23
+ * @Date 2020/9/25
  * @Version V1.0
  **/
-//@Service
-public class PageServiceImpl implements PageService {
+@RestController
+public class TemplateServiceImpl extends BaseApiService implements TemplateService {
 
-   // @Autowired
+    @Autowired
     private GoodsFeign goodsFeign;
 
-   // @Autowired
+    @Autowired
     private BrandFeign brandFeign;
 
-   // @Autowired
+    @Autowired
     private CategoryFeign categoryFeign;
 
-   // @Autowired
+    @Autowired
     private SpecificationFeign specificationFeign;
 
+    @Value(value = "${mrshop.static.html.path}")
+    private String staticHTMLPath;
+
+    //注入静态化模版
+    @Autowired
+    private TemplateEngine templateEngine;
+
+
     @Override
-    public Map<String, Object> getPageInfoBySpuId(Integer spuId) {
+    public Result<JSONObject> createStaticHTMLTemplate(Integer spuId) {
+
+        //也就是说我们现在可以创建上下文了
+        Map<String, Object> map = this.getPageInfoBySpuId(spuId);
+        //创建模板引擎上下文
+        Context context = new Context();
+        //将所有准备的数据放到模板中
+        context.setVariables(map);
+
+        //JDBC步骤
+        //加载驱动
+        //创建链接
+        //sql
+        // rsult
+        //关流-->释放资源
+
+
+        //main-->主线程
+        //创建文件 param1:文件路径 param2:文件名称
+        File file = new File(staticHTMLPath, spuId + ".html");
+        //构建文件输出流
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(file, "UTF-8");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } finally {
+            writer.close();
+        }
+
+        templateEngine.process("item",context,writer);
+
+        return this.setResultSuccess();
+    }
+
+    @Override
+    public Result<JSONObject> initStaticHTMLTemplate() {
+
+        //获取所有spu数据
+        Result<List<SpuDTO>> spuInfoResult = goodsFeign.getSpuInfo(new SpuDTO());
+        if (spuInfoResult.getCode() == 200) {
+            List<SpuDTO> spuDTOList = spuInfoResult.getData();
+            spuDTOList.stream().forEach(spuDTO -> {
+                createStaticHTMLTemplate(spuDTO.getId());
+            });
+        }
+
+        return this.setResultSuccess();
+    }
+
+
+    private Map<String, Object> getPageInfoBySpuId(Integer spuId) {
 
         Map<String, Object> map = new HashMap<>();
 
@@ -69,7 +140,7 @@ public class PageServiceImpl implements PageService {
                 }
 
                 //分类信息
-                Result<List<CategoryEntity>> categoryResult = categoryFeign.getCategoryByIdList(String.join(",",Arrays.asList(spuInfo.getCid1() + "", spuInfo.getCid2() + "", spuInfo.getCid3() + "")));
+                Result<List<CategoryEntity>> categoryResult = categoryFeign.getCategoryByIdList(String.join(",", Arrays.asList(spuInfo.getCid1() + "", spuInfo.getCid2() + "", spuInfo.getCid3() + "")));
                 if(categoryResult.getCode() == 200){
                     List<CategoryEntity> categoryEntityList = categoryResult.getData();
                     map.put("categoryList",categoryEntityList);
@@ -136,4 +207,5 @@ public class PageServiceImpl implements PageService {
 
         return map;
     }
+
 }
