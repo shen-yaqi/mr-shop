@@ -1,19 +1,14 @@
 package com.baidu.shop.service.impl;
 
 import com.baidu.shop.base.Result;
-import com.baidu.shop.dto.BrandDTO;
-import com.baidu.shop.dto.SkuDTO;
-import com.baidu.shop.dto.SpecParamDTO;
-import com.baidu.shop.dto.SpuDTO;
-import com.baidu.shop.entity.BrandEntity;
-import com.baidu.shop.entity.CategoryEntity;
-import com.baidu.shop.entity.SpecParamEntity;
-import com.baidu.shop.entity.SpuDetailEntity;
+import com.baidu.shop.dto.*;
+import com.baidu.shop.entity.*;
 import com.baidu.shop.feign.BrandFeign;
 import com.baidu.shop.feign.CategoryFeign;
 import com.baidu.shop.feign.GoodsFeign;
 import com.baidu.shop.feign.SpecificationFeign;
 import com.baidu.shop.service.PageService;
+import com.baidu.shop.utils.BaiduBeanUtil;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName PageServiceImpl
@@ -111,6 +107,30 @@ public class PageServiceImpl implements PageService {
                 }
 
                 //规格
+                SpecGroupDTO specGroupDTO = new SpecGroupDTO();
+                specGroupDTO.setCid(spuInfo.getCid3());
+                Result<List<SpecGroupEntity>> sepcGroupInfoResult = specificationFeign.getSepcGroupInfo(specGroupDTO);
+
+                if (sepcGroupInfoResult.getCode() == 200) {
+                    List<SpecGroupEntity> specGroupEntityList = sepcGroupInfoResult.getData();
+
+                    List<SpecGroupDTO> specGroupDTOList = specGroupEntityList.stream().map(specGroupEntity -> {
+
+                        SpecGroupDTO specGroup = BaiduBeanUtil.copyProperties(specGroupEntity, SpecGroupDTO.class);
+                        //GroupDTO
+                        SpecParamDTO paramDTO = new SpecParamDTO();
+
+                        paramDTO.setGroupId(specGroup.getId());
+                        paramDTO.setGeneric(true);
+                        Result<List<SpecParamEntity>> specParamResult = specificationFeign.getSpecParamInfo(paramDTO);
+
+                        if(specParamResult.getCode() == 200){
+                            specGroup.setParamList(specParamResult.getData());
+                        }
+                        return specGroup;
+                    }).collect(Collectors.toList());
+                    map.put("specGroupDTOList",specGroupDTOList);
+                }
             }
         }
 
