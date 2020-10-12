@@ -3,6 +3,8 @@ package com.baidu.shop.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
+import com.baidu.shop.component.MrRabbitMQ;
+import com.baidu.shop.constant.MqMessageConstant;
 import com.baidu.shop.dto.BrandDTO;
 import com.baidu.shop.dto.SkuDTO;
 import com.baidu.shop.dto.SpuDTO;
@@ -52,6 +54,9 @@ public class GoodsServiceImpl extends BaseApiService implements GoodsService {
 
     @Resource
     private StockMapper stockMapper;
+
+    @Autowired
+    private MrRabbitMQ mrRabbitMQ;
 
     @Transactional
     @Override
@@ -132,7 +137,7 @@ public class GoodsServiceImpl extends BaseApiService implements GoodsService {
         return this.setResultSuccess(spuDetailEntity);
     }
 
-    @Transactional
+    @Transactional//jvm 虚拟机栈 -->入栈和出栈的问题
     @Override
     public Result<JSONObject> addInfo(SpuDTO spuDTO) {
 
@@ -153,6 +158,11 @@ public class GoodsServiceImpl extends BaseApiService implements GoodsService {
         spuDetailMapper.insertSelective(spuDetailEntity);
 
         this.addSkusAndStocks(spuDTO.getSkus(),spuId,date);
+
+        //@feign search template
+        //
+        //发送消息
+        mrRabbitMQ.send(spuEntity.getId() + "", MqMessageConstant.SPU_ROUT_KEY_SAVE);
 
         return this.setResultSuccess();
     }

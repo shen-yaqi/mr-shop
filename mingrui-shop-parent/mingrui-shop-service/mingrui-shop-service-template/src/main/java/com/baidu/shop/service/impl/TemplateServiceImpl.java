@@ -14,7 +14,6 @@ import com.baidu.shop.utils.BaiduBeanUtil;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -23,10 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -68,14 +64,6 @@ public class TemplateServiceImpl extends BaseApiService implements TemplateServi
         Context context = new Context();
         //将所有准备的数据放到模板中
         context.setVariables(map);
-
-        //JDBC步骤
-        //加载驱动
-        //创建链接
-        //sql
-        // rsult
-        //关流-->释放资源
-
 
         //main-->主线程
         //创建文件 param1:文件路径 param2:文件名称
