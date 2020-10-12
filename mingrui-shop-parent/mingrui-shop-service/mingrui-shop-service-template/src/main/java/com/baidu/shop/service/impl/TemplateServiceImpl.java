@@ -54,6 +54,18 @@ public class TemplateServiceImpl extends BaseApiService implements TemplateServi
     @Autowired
     private TemplateEngine templateEngine;
 
+    @Override
+    public Result<JSONObject> delHTMLBySpuId(Integer spuId) {
+
+        //param: 文件的路径
+        File file = new File(staticHTMLPath + File.separator + spuId + ".html");
+
+        //file.delete() 删除文件-->boolean(true:删除成功false:删除失败)
+        if(!file.delete()){
+            return this.setResultError("文件删除失败");
+        }
+        return this.setResultSuccess();
+    }
 
     @Override
     public Result<JSONObject> createStaticHTMLTemplate(Integer spuId) {
@@ -72,6 +84,7 @@ public class TemplateServiceImpl extends BaseApiService implements TemplateServi
         PrintWriter writer = null;
         try {
             writer = new PrintWriter(file, "UTF-8");
+            templateEngine.process("item",context,writer);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -79,8 +92,6 @@ public class TemplateServiceImpl extends BaseApiService implements TemplateServi
         } finally {
             writer.close();
         }
-
-        templateEngine.process("item",context,writer);
 
         return this.setResultSuccess();
     }
