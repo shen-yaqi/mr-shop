@@ -3,12 +3,14 @@ package com.baidu.shop.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
+import com.baidu.shop.constant.MRshopConstant;
 import com.baidu.shop.constant.UserConstant;
 import com.baidu.shop.dto.UserDTO;
 import com.baidu.shop.entity.UserEntity;
 import com.baidu.shop.mapper.UserMapper;
 import com.baidu.shop.redis.repository.RedisRepository;
 import com.baidu.shop.service.UserService;
+import com.baidu.shop.status.HTTPStatus;
 import com.baidu.shop.utils.BCryptUtil;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import com.baidu.shop.utils.LuosimaoDuanxinUtil;
@@ -79,6 +81,19 @@ public class UserServiceImpl extends BaseApiService implements UserService {
         //第三方SDK 支付宝 微信 短信
         log.debug("发送短信验证码-->手机号 : {} , 验证码 : {}",userDTO.getPhone(),code);
         //LuosimaoDuanxinUtil.sendSpeak(userDTO.getPhone(),code);
+
+        redisRepository.set(MRshopConstant.USER_PHONE_CODE_PRE + userDTO.getPhone(),code);// 验证码有效期一分钟
+        redisRepository.expire(MRshopConstant.USER_PHONE_CODE_PRE + userDTO.getPhone(),120);
+
+        return this.setResultSuccess();
+    }
+
+    @Override
+    public Result<JSONObject> checkCode(String phone, String code) {
+
+        String s = redisRepository.get(MRshopConstant.USER_PHONE_CODE_PRE + phone);
+        if(!code.equals(s)) return this.setResultError(HTTPStatus.VALID_CODE_ERROR,"验证码输入错误");
+
         return this.setResultSuccess();
     }
 }

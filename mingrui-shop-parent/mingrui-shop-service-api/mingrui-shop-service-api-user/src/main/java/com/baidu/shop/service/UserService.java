@@ -38,4 +38,8 @@ public interface UserService {
     //应该定义常量,并返回常量,前台判断常量的值就可以
     // public static final Integer USERNAME_IS_EXIST="1";
     Result<List<UserEntity>> checkUsernameOrPhone(@PathVariable(value = "value") String value, @PathVariable(value = "type") Integer type);
+
+    @GetMapping(value = "/user/checkCode")
+    @ApiOperation(value = "校验用户输入的手机验证码")
+    Result<JSONObject> checkCode(String phone ,String code);
 }
