@@ -13,7 +13,6 @@ import com.baidu.shop.service.UserService;
 import com.baidu.shop.status.HTTPStatus;
 import com.baidu.shop.utils.BCryptUtil;
 import com.baidu.shop.utils.BaiduBeanUtil;
-import com.baidu.shop.utils.LuosimaoDuanxinUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
