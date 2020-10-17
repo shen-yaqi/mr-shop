@@ -58,12 +58,21 @@ public class UserOauthController extends BaseApiService {
         return this.setResultSuccess();
     }
 
-
     @GetMapping(value = "oauth/verify")
-    public Result<UserInfo> checkUserIsLogin(@CookieValue(value = "MRSHOP_TOKEN") String token){
+    public Result<UserInfo> checkUserIsLogin(@CookieValue(value = "MRSHOP_TOKEN") String token
+            , HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
 
         try {
             UserInfo userInfo = JwtUtils.getInfoFromToken(token, jwtConfig.getPublicKey());
+
+            //刷新token 9:00 9:30重新登录 9:28 还访问过项目呢?
+            String newToken = JwtUtils.generateToken(userInfo, jwtConfig.getPrivateKey(), jwtConfig.getExpire());
+
+            //重新放到cookie
+            CookieUtils.setCookie(httpServletRequest,httpServletResponse
+                    ,jwtConfig.getCookieName(),newToken,jwtConfig.getCookieMaxAge(),true);
+
+
             return this.setResultSuccess(userInfo);
         } catch (Exception e) {//如果有异常 说明token有问题
             //e.printStackTrace();

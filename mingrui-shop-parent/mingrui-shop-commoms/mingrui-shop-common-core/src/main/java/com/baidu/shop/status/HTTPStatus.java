@@ -21,5 +21,5 @@ public class HTTPStatus {
 
     public static final int VALID_USER_PASSWORD_ERROR = 5004;//参数校验失败
 
-    public static final int VERIFY_ERROR= 403;//参数校验失败
+    public static final int VERIFY_ERROR = 403;//参数校验失败
 }
