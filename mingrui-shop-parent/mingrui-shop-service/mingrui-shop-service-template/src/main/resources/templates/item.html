@@ -668,29 +668,42 @@
                 //this.sku --> skuId , IMAGE , PRICE OWN_SPEC
                 //THIS.NUM
 
-                //先从localstorage中获取carList
-
-                let carList = mrshop.store.get('carList') || [];
-
-                let car = carList.find(sku => sku.skuId == this.sku.id);
-
-                if(car){
-                    //car.num = car.num + this.num;
-                    car.num += this.num;
-                }else{
-                    car = {
+                //校验用户是否登录
+                mrshop.checkUserLogin().then(resp => {
+                    //请求后台
+                    mrshop.http.post('car/car/addCar',{
                         skuId:this.sku.id,
-                        title:this.sku.title,
-                        image:this.images.length > 0 ? this.images[0] : '',
-                        price:this.sku.price,
+                        // title:this.sku.title,
+                        // image:this.images.length > 0 ? this.images[0] : '',
+                        // price:this.sku.price,
                         num:this.num,
-                        ownSpec:JSON.stringify(this.ownSpec)
-                    }
-                    carList.push(car);
-                }
+                        //ownSpec:JSON.stringify(this.ownSpec)
+                    }).then(resp => {
 
-                mrshop.store.set('carList',carList);
-                window.location.href = '../success-cart.html';
+                    }).catch(error => console.log(error));
+                    //用户已经登录
+                }).catch(() => {
+
+                    let carList = mrshop.store.get('carList') || [];
+                    let car = carList.find(sku => sku.skuId == this.sku.id);
+
+                    if(car){
+                        car.num += this.num;
+                    }else{
+                        car = {
+                            skuId:this.sku.id,
+                            title:this.sku.title,
+                            image:this.images.length > 0 ? this.images[0] : '',
+                            price:this.sku.price,
+                            num:this.num,
+                            ownSpec:JSON.stringify(this.ownSpec)
+                        }
+                        carList.push(car);
+                    }
+
+                    mrshop.store.set('carList',carList);
+                    window.location.href = '../success-cart.html';
+                });
 
             }
         },
