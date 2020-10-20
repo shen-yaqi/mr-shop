@@ -665,26 +665,21 @@
                 if(this.num > 1) this.num--;
             },
             addCar () {
-                //this.sku --> skuId , IMAGE , PRICE OWN_SPEC
-                //THIS.NUM
 
                 //校验用户是否登录
                 mrshop.checkUserLogin().then(resp => {
                     //请求后台
                     mrshop.http.post('car/car/addCar',{
                         skuId:this.sku.id,
-                        // title:this.sku.title,
-                        // image:this.images.length > 0 ? this.images[0] : '',
-                        // price:this.sku.price,
                         num:this.num,
-                        //ownSpec:JSON.stringify(this.ownSpec)
                     }).then(resp => {
-
+                        if(resp.data.code == 200){
+                            window.location.href = '../success-cart.html';
+                        }
                     }).catch(error => console.log(error));
-                    //用户已经登录
                 }).catch(() => {
 
-                    let carList = mrshop.store.get('carList') || [];
+                    let carList = mrshop.store.get(mrshop.CLIENT_CAR_LIST) || [];
                     let car = carList.find(sku => sku.skuId == this.sku.id);
 
                     if(car){
@@ -701,10 +696,11 @@
                         carList.push(car);
                     }
 
-                    mrshop.store.set('carList',carList);
+                    mrshop.store.set(mrshop.CLIENT_CAR_LIST,carList);
                     window.location.href = '../success-cart.html';
                 });
-
+                //window.location.href = '../success-cart.html';
+                //这行代码如果是在ajax的代码里面有可能是可以的,用的是axios 是绝对不可以的
             }
         },
         computed:{
