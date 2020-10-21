@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +44,47 @@ public class CarServiceImpl extends BaseApiService implements CarService {
     private JwtConfig jwtConfig;
 
     @Override
+    public Result<List<Car>> updateNum(Long skuId, Integer type, String token) {
+
+        try {
+            UserInfo userInfo = JwtUtils.getInfoFromToken(token, jwtConfig.getPublicKey());
+            Car redisCar = redisRepository.getHash(MRshopConstant.USER_GOODS_CAR_PRE + userInfo.getId()
+                    , skuId + "", Car.class);
+//            if(type == 1){
+//                redisCar.setNum(redisCar.getNum() + 1);
+//            }else{
+//                redisCar.setNum(redisCar.getNum() - 1);
+//            }
+            redisCar.setNum(type == MRshopConstant.CAR_OPERATION_INCREMENT ? redisCar.getNum() + 1 : redisCar.getNum() - 1);
+            redisRepository.setHash(MRshopConstant.USER_GOODS_CAR_PRE + userInfo.getId()
+                    ,skuId + "", JSONUtil.toJsonString(redisCar));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return this.setResultSuccess();
+    }
+
+    @Override
+    public Result<List<Car>> getCurrentUserGoodsCar(String token) {
+        //获取当前登录用户信息
+        //通过用户id获取购物车数据-->Map<String,String> skuid,car
+        try {
+            List<Car> cars = new ArrayList<>();
+            UserInfo userInfo = JwtUtils.getInfoFromToken(token, jwtConfig.getPublicKey());
+            Map<String, String> goodsCarMap = redisRepository.getHash(MRshopConstant.USER_GOODS_CAR_PRE + userInfo.getId());
+            goodsCarMap.forEach((key,value) -> {
+                Car car = JSONUtil.toBean(value, Car.class);
+                cars.add(car);
+            });
+            return this.setResultSuccess(cars);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return this.setResultError("内部错误");
+    }
+
+    @Override
     public Result<JSONObject> mergeCar(String clientCarList, String token) {
 
         com.alibaba.fastjson.JSONObject jsonObject = com.alibaba.fastjson.JSONObject.parseObject(clientCarList);
@@ -58,25 +100,19 @@ public class CarServiceImpl extends BaseApiService implements CarService {
     @Override
     public Result<JSONObject> addCar(Car car ,String token) {
 
-        //需要一个feign接口
-        //可以通过skuId查询sku信息
-
         try {
             UserInfo userInfo = JwtUtils.getInfoFromToken(token, jwtConfig.getPublicKey());
 
-            //通过userid和skuid获取商品数据
             Car redisCar = redisRepository.getHash(MRshopConstant.USER_GOODS_CAR_PRE + userInfo.getId()
                     , car.getSkuId() + "", Car.class);
 
             Car saveCar = null;
-            //true: num += num
-            //false:
             log.debug("通过key : {} ,skuid : {} 获取到的数据为 : {}",MRshopConstant.USER_GOODS_CAR_PRE + userInfo.getId(),car.getSkuId(),redisCar);
             if(ObjectUtil.isNotNull(redisCar)){//原来的用户购物车中有当前要添加到购物车中的商品
                 redisCar.setNum(car.getNum() + redisCar.getNum());
+
                 saveCar = redisCar;
-//                redisRepository.setHash(MRshopConstant.USER_GOODS_CAR_PRE + userInfo.getId()
-//                        ,car.getSkuId() + "", JSONUtil.toJsonString(redisCar));
+
                 log.debug("当前用户购物车中有将要新增的商品，重新设置num : {}" , redisCar.getNum());
             }else{//当前用户购物车中没有将要新增的商品信息
                 Result<SkuEntity> skuResult = goodsFeign.getSkuBySkuId(car.getSkuId());
@@ -85,23 +121,14 @@ public class CarServiceImpl extends BaseApiService implements CarService {
                     car.setTitle(skuEntity.getTitle());
                     car.setImage(StringUtil.isNotEmpty(skuEntity.getImages()) ?
                             skuEntity.getImages().split(",")[0] : "");
-                    //
-                    Map<String, Object> stringObjectMap = JSONUtil.toMap(skuEntity.getOwnSpec());
-                    //key:id
-                    //value: 规格参数值
-                    //遍历map
-                    //feign调用通过paramId查询info的接口
-                    //重新组装map
-                    //将map转为json字符串
 
                     car.setOwnSpec(skuEntity.getOwnSpec());
                     car.setPrice(Long.valueOf(skuEntity.getPrice()));
                     car.setUserId(userInfo.getId());
-                    saveCar = car;
-//                    redisRepository.setHash(MRshopConstant.USER_GOODS_CAR_PRE + userInfo.getId()
-//                            ,car.getSkuId() + "", JSONUtil.toJsonString(car));
-                    log.debug("新增商品到购物车redis,KEY : {} , skuid : {} , car : {}",MRshopConstant.USER_GOODS_CAR_PRE + userInfo.getId(),car.getSkuId(),JSONUtil.toJsonString(car));
 
+                    saveCar = car;
+
+                    log.debug("新增商品到购物车redis,KEY : {} , skuid : {} , car : {}",MRshopConstant.USER_GOODS_CAR_PRE + userInfo.getId(),car.getSkuId(),JSONUtil.toJsonString(car));
                 }
             }
 
