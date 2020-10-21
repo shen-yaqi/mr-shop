@@ -27,7 +27,7 @@ spring:
   datasource:
     # 数据源名称，任意
     name: mysql
-    url: jdbc:mysql://127.0.0.1:3306/mr-shop?useSSL=true&nullNamePatternMatchesAll=true&serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://127.0.0.1:3306/1909-mrshop?useSSL=true&nullNamePatternMatchesAll=true&serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
     # 数据库连接用户
     username: root
     # 数据库连接密码
@@ -71,5 +71,5 @@ mrshop:
     workerId: 1 # 项目唯一标识
     datacenterId: 1 # 序列号 其实也是唯一标识
   jwt:
-    pubKeyPath: E:\rea.pub # 公钥地址
+    pubKeyPath: E:\secret\rea.pub # 公钥地址
     cookieName: MRSHOP_TOKEN # cookie的名称
